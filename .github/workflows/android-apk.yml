@@ -1,0 +1,62 @@
+name: Build Android APK (Kivy/Buildozer)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - "main.py"
+      - "buildozer.spec"
+      - ".github/workflows/android-apk.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential git zip unzip openjdk-17-jdk \
+            libffi-dev libssl-dev libsqlite3-dev zlib1g-dev \
+            libjpeg-dev libfreetype6-dev \
+            libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
+            libglu1-mesa libgles2-mesa mesa-common-dev \
+            libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+          python -m pip install --upgrade pip wheel setuptools
+
+      - name: Install Buildozer
+        run: |
+          pip install "Cython<3" buildozer
+
+      - name: Cache buildozer/pip
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            ~/.cache/pip
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-
+
+      - name: Build APK (debug)
+        env:
+          LANG: en_US.UTF-8
+          BUILDOZER_WARN_ON_ROOT: "0"
+        run: |
+          buildozer -v android debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: YarHooshmand-debug-apk
+          path: bin/*.apk
