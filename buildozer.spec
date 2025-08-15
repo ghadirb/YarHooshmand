@@ -10,3 +10,6 @@ android.build_tools_version = 30.0.3
 android.ndk = 23b
 android.arch = armeabi-v7a
 android.release = 1
+
+# مسیر SDK برای Buildozer
+android.sdk_path = ./Android/Sdk
