@@ -43,7 +43,7 @@ jobs:
           rm -rf cmdline-tools commandlinetools-linux-9477386_latest.zip
           echo "${{ github.workspace }}/Android/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
-      # نصب SDK، Platform و Build-tools 30.0.3
+      # نصب SDK و Build-tools نسخه 30.0.3 که شامل aidl واقعی است
       - name: Install SDK Packages
         run: |
           sdkmanager --sdk_root=${{ github.workspace }}/Android/Sdk --licenses
@@ -51,15 +51,8 @@ jobs:
             "platform-tools" \
             "platforms;android-30" \
             "build-tools;30.0.3"
-          # اضافه کردن مسیر build-tools به PATH برای aidl و zipalign
           echo "${{ github.workspace }}/Android/Sdk/platform-tools" >> $GITHUB_PATH
           echo "${{ github.workspace }}/Android/Sdk/build-tools/30.0.3" >> $GITHUB_PATH
-
-      # چک کردن وجود aidl
-      - name: Check AIDL
-        run: |
-          which aidl
-          aidl --help
 
       # کش pip
       - name: Cache pip
