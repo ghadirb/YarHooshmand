@@ -31,7 +31,7 @@ jobs:
           sudo apt update
           sudo apt install -y python3 python3-pip python3-setuptools git zip unzip openjdk-17-jdk wget
 
-      # دانلود Command Line Tools
+      # دانلود Command Line Tools جدید
       - name: Download Android Command Line Tools
         run: |
           mkdir -p ${{ github.workspace }}/Android/cmdline-tools
