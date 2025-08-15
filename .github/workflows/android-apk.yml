@@ -1,62 +1,74 @@
-name: Build Android APK (Kivy/Buildozer)
+name: Build Signed APK
 
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
-    paths:
-      - "main.py"
-      - "buildozer.spec"
-      - ".github/workflows/android-apk.yml"
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-
-      - name: Install system deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential git zip unzip openjdk-17-jdk \
-            libffi-dev libssl-dev libsqlite3-dev zlib1g-dev \
-            libjpeg-dev libfreetype6-dev \
-            libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
-            libglu1-mesa libgles2-mesa mesa-common-dev \
-            libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good
-          python -m pip install --upgrade pip wheel setuptools
-
-      - name: Install Buildozer
-        run: |
-          pip install "Cython<3" buildozer
-
-      - name: Cache buildozer/pip
+      - name: Cache Android SDK
         uses: actions/cache@v4
         with:
           path: |
-            ~/.buildozer
-            ~/.cache/pip
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-
+            ~/.android
+            ~/Android
+          key: android-sdk-${{ runner.os }}-${{ hashFiles('**/buildozer.spec') }}
 
-      - name: Build APK (debug)
-        env:
-          LANG: en_US.UTF-8
-          BUILDOZER_WARN_ON_ROOT: "0"
+      - name: Install dependencies
         run: |
-          buildozer -v android debug
+          sudo apt update
+          sudo apt install -y python3 python3-pip python3-setuptools git zip unzip openjdk-17-jdk
 
-      - name: Upload APK artifact
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+
+      - name: Install Python deps
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install buildozer cython
+
+      - name: Build Release APK
+        run: |
+          buildozer android release
+
+      # بازگردانی Keystore از Secrets
+      - name: Decode Keystore
+        run: |
+          echo "$KEYSTORE_FILE" | base64 --decode > my-release-key.keystore
+        env:
+          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
+
+      # امضای APK
+      - name: Sign APK
+        run: |
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+          -keystore my-release-key.keystore \
+          -storepass ${{ secrets.KEYSTORE_PASSWORD }} \
+          -keypass ${{ secrets.KEY_PASSWORD }} \
+          bin/*.apk ${{ secrets.KEY_ALIAS }}
+
+      # تراز کردن APK
+      - name: Align APK
+        run: |
+          zipalign -v 4 bin/*.apk app-release.apk
+
+      # خروجی نهایی
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: YarHooshmand-debug-apk
-          path: bin/*.apk
+          name: signed-release-apk
+          path: app-release.apk
