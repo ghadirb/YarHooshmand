@@ -43,7 +43,7 @@ jobs:
           rm -rf cmdline-tools commandlinetools-linux-9477386_latest.zip
           echo "${{ github.workspace }}/Android/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
-      # نصب SDK و Build-tools نسخه 30.0.3 که شامل aidl واقعی است
+      # نصب SDK و Build-tools نسخه 30.0.3
       - name: Install SDK Packages
         run: |
           sdkmanager --sdk_root=${{ github.workspace }}/Android/Sdk --licenses
