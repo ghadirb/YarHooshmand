@@ -13,13 +13,11 @@ jobs:
     env:
       ANDROID_HOME: ${{ github.workspace }}/Android/Sdk
       ANDROID_SDK_ROOT: ${{ github.workspace }}/Android/Sdk
-      PATH: ${{ github.workspace }}/Android/cmdline-tools/latest/bin:${{ github.workspace }}/Android/platform-tools:${{ github.workspace }}/Android/Sdk/build-tools/33.0.2:/usr/bin:/bin:/usr/sbin:/sbin
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # کش Android SDK
       - name: Cache Android SDK
         uses: actions/cache@v4
         with:
@@ -33,7 +31,6 @@ jobs:
           sudo apt update
           sudo apt install -y python3 python3-pip python3-setuptools git zip unzip openjdk-17-jdk wget
 
-      # دانلود commandlinetools
       - name: Download Android Command Line Tools
         run: |
           mkdir -p ${{ github.workspace }}/Android/cmdline-tools
@@ -43,14 +40,15 @@ jobs:
           mkdir -p latest
           mv cmdline-tools/* latest/
           rm -rf cmdline-tools commandlinetools-linux-9477386_latest.zip
+          echo "${{ github.workspace }}/Android/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
-      # نصب SDK و build-tools
       - name: Install SDK Packages
         run: |
-          sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          sdkmanager --sdk_root=${{ github.workspace }}/Android/Sdk --licenses
+          sdkmanager --sdk_root=${{ github.workspace }}/Android/Sdk "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          echo "${{ github.workspace }}/Android/Sdk/build-tools/33.0.2" >> $GITHUB_PATH
+          echo "${{ github.workspace }}/Android/platform-tools" >> $GITHUB_PATH
 
-      # کش pip
       - name: Cache pip
         uses: actions/cache@v4
         with:
@@ -59,25 +57,21 @@ jobs:
           restore-keys: |
             pip-${{ runner.os }}-
 
-      # نصب Buildozer
       - name: Install Python deps
         run: |
           python3 -m pip install --upgrade pip
           pip install buildozer cython
 
-      # بیلد APK Release
       - name: Build Release APK
         run: |
           buildozer android release
 
-      # بازگردانی Keystore از Secrets
       - name: Decode Keystore
         run: |
           echo "$KEYSTORE_FILE" | base64 --decode > my-release-key.keystore
         env:
           KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
 
-      # امضای APK
       - name: Sign APK
         run: |
           jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
@@ -86,12 +80,10 @@ jobs:
           -keypass ${{ secrets.KEY_PASSWORD }} \
           bin/*.apk ${{ secrets.KEY_ALIAS }}
 
-      # تراز کردن APK
       - name: Align APK
         run: |
           zipalign -v 4 bin/*.apk app-release.apk
 
-      # ذخیره خروجی
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
