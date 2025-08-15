@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     env:
       ANDROID_HOME: ${{ github.workspace }}/Android/Sdk
       ANDROID_SDK_ROOT: ${{ github.workspace }}/Android/Sdk
@@ -31,6 +31,7 @@ jobs:
           sudo apt update
           sudo apt install -y python3 python3-pip python3-setuptools git zip unzip openjdk-17-jdk wget
 
+      # دانلود Command Line Tools
       - name: Download Android Command Line Tools
         run: |
           mkdir -p ${{ github.workspace }}/Android/cmdline-tools
@@ -42,13 +43,23 @@ jobs:
           rm -rf cmdline-tools commandlinetools-linux-9477386_latest.zip
           echo "${{ github.workspace }}/Android/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
+      # نصب SDK، Platform و Build-tools چند نسخه
       - name: Install SDK Packages
         run: |
           sdkmanager --sdk_root=${{ github.workspace }}/Android/Sdk --licenses
-          sdkmanager --sdk_root=${{ github.workspace }}/Android/Sdk "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          sdkmanager --sdk_root=${{ github.workspace }}/Android/Sdk \
+            "platform-tools" \
+            "platforms;android-33" \
+            "build-tools;30.0.3" \
+            "build-tools;31.0.0" \
+            "build-tools;33.0.2"
+          # اضافه کردن مسیر build-tools به PATH
+          echo "${{ github.workspace }}/Android/Sdk/platform-tools" >> $GITHUB_PATH
           echo "${{ github.workspace }}/Android/Sdk/build-tools/33.0.2" >> $GITHUB_PATH
-          echo "${{ github.workspace }}/Android/platform-tools" >> $GITHUB_PATH
+          echo "${{ github.workspace }}/Android/Sdk/build-tools/31.0.0" >> $GITHUB_PATH
+          echo "${{ github.workspace }}/Android/Sdk/build-tools/30.0.3" >> $GITHUB_PATH
 
+      # کش pip
       - name: Cache pip
         uses: actions/cache@v4
         with:
@@ -57,21 +68,25 @@ jobs:
           restore-keys: |
             pip-${{ runner.os }}-
 
+      # نصب Buildozer و Cython
       - name: Install Python deps
         run: |
           python3 -m pip install --upgrade pip
           pip install buildozer cython
 
+      # بیلد APK Release
       - name: Build Release APK
         run: |
           buildozer android release
 
+      # بازگردانی Keystore از Secrets
       - name: Decode Keystore
         run: |
           echo "$KEYSTORE_FILE" | base64 --decode > my-release-key.keystore
         env:
           KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
 
+      # امضای APK
       - name: Sign APK
         run: |
           jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
@@ -80,10 +95,12 @@ jobs:
           -keypass ${{ secrets.KEY_PASSWORD }} \
           bin/*.apk ${{ secrets.KEY_ALIAS }}
 
+      # تراز کردن APK
       - name: Align APK
         run: |
           zipalign -v 4 bin/*.apk app-release.apk
 
+      # ذخیره خروجی
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
