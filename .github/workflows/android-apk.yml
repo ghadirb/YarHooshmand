@@ -12,7 +12,8 @@ jobs:
     timeout-minutes: 120
     env:
       ANDROID_HOME: ${{ github.workspace }}/Android/Sdk
-      PATH: ${{ github.workspace }}/Android/cmdline-tools/latest/bin:${{ github.workspace }}/Android/platform-tools:${{ github.workspace }}/Android/Sdk/build-tools/33.0.2:${{ env.PATH }}
+      ANDROID_SDK_ROOT: ${{ github.workspace }}/Android/Sdk
+      PATH: ${{ github.workspace }}/Android/cmdline-tools/latest/bin:${{ github.workspace }}/Android/platform-tools:${{ github.workspace }}/Android/Sdk/build-tools/33.0.2:/usr/bin:/bin:/usr/sbin:/sbin
 
     steps:
       - name: Checkout
@@ -46,8 +47,8 @@ jobs:
       # نصب SDK و build-tools
       - name: Install SDK Packages
         run: |
-          sdkmanager --sdk_root=${{ github.workspace }}/Android/Sdk --licenses
-          sdkmanager --sdk_root=${{ github.workspace }}/Android/Sdk "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
       # کش pip
       - name: Cache pip
