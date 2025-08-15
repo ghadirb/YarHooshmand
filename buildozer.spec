@@ -1,14 +1,17 @@
 [app]
 
-# نام اپلیکیشن
+# اطلاعات اپلیکیشن
 title = MyApp
 package.name = myapp
 package.domain = org.example
 version = 1.0
 orientation = portrait
-source.include_exts = py,png,jpg,kv,atlas
 icon.filename = %(source.dir)s/icon.png
 presplash.filename = %(source.dir)s/presplash.png
+
+# مسیر سورس پایتون
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas
 
 # Android
 android.api = 30
