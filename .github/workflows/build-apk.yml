@@ -36,7 +36,7 @@ jobs:
             libpng-dev \
             libgl1-mesa-dev \
             libgles2-mesa-dev \
-            libegl1-mesa \
+            libegl1 \
             libmtdev-dev \
             libxcursor-dev \
             libxrandr-dev \
