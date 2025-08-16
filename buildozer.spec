@@ -1,17 +1,25 @@
-{
-  "title": "MyApp",
-  "package.name": "myapp",
-  "package.domain": "org.example",
-  "source.dir": "source",
-  "version": "0.1",
-  "requirements": "python3,kivy",
-  "android.api": "30",
-  "android.minapi": "21",
-  "android.target": "30",
-  "android.sdk": "30",
-  "android.ndk": "21b",
-  "android.build_tools": "30.0.3",
-  "android.permissions": "INTERNET",
-  "log_level": 2,
-  "android.archs": "armeabi-v7a,arm64-v8a,x86,x86_64"
-}
+[app]
+# اطلاعات اپلیکیشن
+title = MyApp
+package.name = myapp
+package.domain = org.example
+version = 1.0
+orientation = portrait
+
+# مسیر سورس پایتون
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas
+
+# آیکون و اسپلش (در صورت وجود فایل)
+icon.filename = %(source.dir)s/icon.png
+presplash.filename = %(source.dir)s/presplash.png
+
+# Android
+android.api = 30
+android.minapi = 21
+android.sdk = 30
+android.build_tools_version = 30.0.3
+android.ndk = 23b
+android.arch = armeabi-v7a
+android.release = 1
+android.sdk_path = ./Android/Sdk
