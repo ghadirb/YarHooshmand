@@ -1,25 +1,40 @@
 [app]
-# اطلاعات اپلیکیشن
+# (str) Title of your application
 title = MyApp
+
+# (str) Package name
 package.name = myapp
+
+# (str) Package domain (needed for android)
 package.domain = org.example
-version = 1.0
-orientation = portrait
 
-# مسیر سورس پایتون
+# (str) Source code where the main.py live
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas
 
-# آیکون و اسپلش (در صورت وجود فایل)
-icon.filename = %(source.dir)s/icon.png
-presplash.filename = %(source.dir)s/presplash.png
+# (str) Version of your application
+version = 0.1
 
-# Android
+# (list) Application requirements
+requirements = python3,kivy
+
+# (str) Android API to use
 android.api = 30
-android.minapi = 21
+
+# (str) Android NDK version
+android.ndk = 21b
+
+# (str) Android SDK version
 android.sdk = 30
+
+# (str) Android build tools version
 android.build_tools_version = 30.0.3
-android.ndk = 23b
-android.arch = armeabi-v7a
-android.release = 1
-android.sdk_path = ./Android/Sdk
+
+# (bool) Whether to accept licenses non-interactively
+android.accept_license = True
+
+# (list) Permissions
+android.permissions = INTERNET
+
+# (str) Path to the AIDL and sdkmanager
+android.aidl_path = /usr/local/android/sdk/aidl
+android.sdkmanager_path = /usr/local/android/sdk/tools/bin/sdkmanager
