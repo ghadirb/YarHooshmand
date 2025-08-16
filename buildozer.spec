@@ -1,24 +1,36 @@
 [app]
-
-# اطلاعات اپلیکیشن
+# (str) Title of your application
 title = MyApp
+
+# (str) Package name
 package.name = myapp
+
+# (str) Package domain (needed for android)
 package.domain = org.example
-version = 1.0
-orientation = portrait
-icon.filename = %(source.dir)s/icon.png
-presplash.filename = %(source.dir)s/presplash.png
 
-# مسیر سورس پایتون
+# (str) Source code where the main.py live
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas
 
-# Android
+# (list) Application requirements
+requirements = python3,kivy
+
+# (str) Supported orientation (one of landscape, sensorLandscape, portrait or all)
+orientation = all
+
+# (str) Android API version to use
 android.api = 30
-android.minapi = 21
+
+# (str) Android NDK version to use
+android.ndk = 21b
+
+# (str) Android SDK version to use
 android.sdk = 30
+
+# (str) Android build tools version
 android.build_tools_version = 30.0.3
-android.ndk = 23b
-android.arch = armeabi-v7a
-android.release = 1
-android.sdk_path = ./Android/Sdk
+
+# (str) Icon of the application
+icon.filename = assets/icon.png
+
+# (list) Permissions
+android.permissions = INTERNET
