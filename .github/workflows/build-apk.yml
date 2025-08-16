@@ -18,12 +18,11 @@ jobs:
         with:
           java-version: '11'
 
-      - name: Install dependencies
+      - name: Install Buildozer
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-pip
-          pip3 install --upgrade pip
-          pip3 install buildozer
+          pip3 install --upgrade buildozer
 
       - name: Build APK
         run: |
