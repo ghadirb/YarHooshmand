@@ -14,10 +14,10 @@ source.dir = .
 # (list) Application requirements
 requirements = python3,kivy
 
-# (str) Supported orientation (one of landscape, sensorLandscape, portrait or all)
-orientation = all
+# (str) Version of your application
+version = 0.1
 
-# (str) Android API version to use
+# (str) Android API to use
 android.api = 30
 
 # (str) Android NDK version to use
@@ -29,8 +29,8 @@ android.sdk = 30
 # (str) Android build tools version
 android.build_tools_version = 30.0.3
 
-# (str) Icon of the application
-icon.filename = assets/icon.png
-
 # (list) Permissions
 android.permissions = INTERNET
+
+# (str) Icon of the application
+icon.filename = assets/icon.png
