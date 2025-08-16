@@ -1,36 +1,17 @@
-[app]
-# (str) Title of your application
-title = MyApp
-
-# (str) Package name
-package.name = myapp
-
-# (str) Package domain (needed for android)
-package.domain = org.example
-
-# (str) Source code where the main.py live
-source.dir = .
-
-# (list) Application requirements
-requirements = python3,kivy
-
-# (str) Version of your application
-version = 0.1
-
-# (str) Android API to use
-android.api = 30
-
-# (str) Android NDK version to use
-android.ndk = 21b
-
-# (str) Android SDK version to use
-android.sdk = 30
-
-# (str) Android build tools version
-android.build_tools_version = 30.0.3
-
-# (list) Permissions
-android.permissions = INTERNET
-
-# (str) Icon of the application
-icon.filename = assets/icon.png
+{
+  "title": "MyApp",
+  "package.name": "myapp",
+  "package.domain": "org.example",
+  "source.dir": "source",
+  "version": "0.1",
+  "requirements": "python3,kivy",
+  "android.api": "30",
+  "android.minapi": "21",
+  "android.target": "30",
+  "android.sdk": "30",
+  "android.ndk": "21b",
+  "android.build_tools": "30.0.3",
+  "android.permissions": "INTERNET",
+  "log_level": 2,
+  "android.archs": "armeabi-v7a,arm64-v8a,x86,x86_64"
+}
