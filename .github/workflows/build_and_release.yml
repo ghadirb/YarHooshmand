@@ -1,0 +1,52 @@
+
+name: Build and Release YarHooshmand v9
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build APK (Debug)
+        uses: ArtemSBulgakov/buildozer-action@v1
+        with:
+          workdir: .
+          command: buildozer android debug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: YarHooshmand-v9-debug
+          path: bin/*.apk
+
+  sign_and_release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: YarHooshmand-v9-debug
+          path: ./release_apk
+      - name: Prepare keystore (from base64 secret)
+        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        run: |
+          mkdir -p keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > keystore/release.keystore
+      - name: Sign APK (placeholder)
+        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        run: |
+          echo "Signing step would run here using apksigner/jarsigner and the provided keystore."
+      - name: Create GitHub Release and upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./release_apk/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
