@@ -1,4 +1,3 @@
-
 name: Build and Release YarHooshmand v9
 
 on:
@@ -12,10 +11,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
       - name: Build APK (Debug)
-        uses: ArtemSBulgakov/buildozer-action@v1
+        uses: kivy/buildozer-action@v1
         with:
           workdir: .
+          buildozer_version: stable
           command: buildozer android debug
 
       - name: Upload APK Artifact
@@ -35,15 +41,18 @@ jobs:
         with:
           name: YarHooshmand-v9-debug
           path: ./release_apk
+
       - name: Prepare keystore (from base64 secret)
         if: ${{ secrets.KEYSTORE_BASE64 != '' }}
         run: |
           mkdir -p keystore
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > keystore/release.keystore
-      - name: Sign APK (placeholder)
+
+      - name: Sign APK
         if: ${{ secrets.KEYSTORE_BASE64 != '' }}
         run: |
-          echo "Signing step would run here using apksigner/jarsigner and the provided keystore."
+          apksigner sign --ks keystore/release.keystore --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} ./release_apk/*.apk
+
       - name: Create GitHub Release and upload APK
         uses: softprops/action-gh-release@v2
         with:
