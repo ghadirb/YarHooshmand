@@ -1,9 +1,0 @@
-__pycache__/
-*.pyc
-.buildozer/
-bin/
-.libs/
-.venv/
-venv/
-.DS_Store
-Thumbs.db
