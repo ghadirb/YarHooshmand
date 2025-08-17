@@ -1,0 +1,40 @@
+
+#:import MDFillRoundFlatIconButton kivymd.uix.button.MDFillRoundFlatIconButton
+Screen:
+    MDBoxLayout:
+        orientation: "vertical"
+        MDTopAppBar:
+            title: "یارهوشمند v9"
+        ScrollView:
+            MDBoxLayout:
+                orientation: "vertical"
+                padding: "12dp"
+                spacing: "8dp"
+                MDLabel:
+                    text: "v9: Location-based reminders + Wake-word placeholders + Plugins"
+                    halign: "center"
+                MDTextField:
+                    id: rem_text
+                    hint_text: "مثال: «وقتی رسیدم سوپرمارکت شیر بخر» یا 'فردا ساعت 9'"
+                MDTextField:
+                    id: rem_lat
+                    hint_text: "Lat (اختیاری)"
+                MDTextField:
+                    id: rem_lon
+                    hint_text: "Lon (اختیاری)"
+                MDTextField:
+                    id: rem_radius
+                    hint_text: "Radius meters (اختیاری، پیش‌فرض 100)"
+                MDFillRoundFlatIconButton:
+                    text: "افزودن یادآور (با لوکیشن اختیاری)"
+                    on_release: app.add_reminder_with_location(rem_text.text, rem_lat.text, rem_lon.text, rem_radius.text)
+                MDFillRoundFlatIconButton:
+                    text: "شروع location monitor"
+                    on_release: app.start_location_monitor()
+                MDLabel:
+                    text: "Plugins:"
+                ScrollView:
+                    size_hint_y: None
+                    height: "120dp"
+                    MDList:
+                        id: plugin_list
