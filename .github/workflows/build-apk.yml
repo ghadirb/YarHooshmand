@@ -20,21 +20,18 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: Download Android SDK Command-line Tools
+      - name: Install Android SDK Tools
         run: |
-          mkdir -p $HOME/android-sdk
-          cd $HOME/android-sdk
-          curl -fo cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-          mkdir -p cmdline-tools
-          unzip cmdline-tools.zip -d cmdline-tools
-          mv cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
-          rm cmdline-tools.zip
-          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$PATH" >> $GITHUB_ENV
-
-      - name: Install SDK packages
-        run: |
-          yes | sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          sudo apt-get update
+          sudo apt-get install -y wget unzip
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdtools.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          unzip cmdtools.zip -d $HOME/android-sdk/cmdline-tools
+          mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+          export ANDROID_HOME=$HOME/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -46,13 +43,13 @@ jobs:
         run: ./gradlew assembleRelease
 
       - name: Upload Debug APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: YarHooshmand-Debug
           path: app/build/outputs/apk/debug/*.apk
 
       - name: Upload Release APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: YarHooshmand-Release
           path: app/build/outputs/apk/release/*.apk
