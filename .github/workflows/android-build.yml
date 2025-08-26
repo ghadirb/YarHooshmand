@@ -7,73 +7,54 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-android:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      # دریافت سورس‌کد
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      # تنظیم نسخه پایتون
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      # نصب وابستگی‌های سیستمی
-      - name: Install system dependencies
+      - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install -y \
-            libffi-dev libssl-dev python3-dev python3-pip \
-            build-essential unzip zip openjdk-17-jdk \
-            libsqlite3-dev zlib1g-dev
+          python -m pip install --upgrade pip
+          pip install buildozer cython
 
-      # نصب وابستگی‌های پایتون
-      - name: Install Python dependencies
-        run: |
-          pip install --upgrade pip
-          pip install cython==0.29.36 buildozer \
-            kivy kivymd requests
-
-      # نصب Android SDK/NDK و Build Tools پایدار + تایید خودکار لایسنس‌ها
-      - name: Install Android SDK, Build Tools, and NDK
+      - name: Install Android SDK manually
         run: |
           export ANDROID_HOME=$HOME/.buildozer/android/platform
-          mkdir -p $ANDROID_HOME
-          cd $ANDROID_HOME
+          mkdir -p $ANDROID_HOME/build-tools/33.0.2
+          cd $ANDROID_HOME/build-tools
 
-          # دانلود command-line tools
+          # دانلود نسخهٔ پایدار Build-Tools شامل aidl
+          wget https://dl.google.com/android/repository/build-tools_r33.0.2-linux.zip -O build-tools.zip
+          unzip build-tools.zip -d .
+
+          # نصب command-line tools برای sdkmanager و تایید لایسنس‌ها
+          cd $ANDROID_HOME
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
           mkdir -p cmdline-tools
           unzip cmdline-tools.zip -d cmdline-tools
 
           export PATH=$ANDROID_HOME/cmdline-tools/cmdline-tools/bin:$PATH
 
-          # تایید همه لایسنس‌ها
           yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses
-
-          # نصب نسخه‌های پایدار و هماهنگ با buildozer.spec
           yes | sdkmanager --sdk_root=$ANDROID_HOME \
             "platform-tools" \
             "platforms;android-33" \
-            "build-tools;33.0.2" \
             "ndk;23.1.7779620" \
             "cmdline-tools;latest"
 
-          # بررسی وجود aidl
-          echo "AIDL path:"
-          find $ANDROID_HOME/build-tools -name aidl
-
-      # اجرای بیلد
-      - name: Build APK
+      - name: Build APK with Buildozer
         run: |
           buildozer android debug
 
-      # ذخیره خروجی APK به عنوان artifact
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: yarhooshmand-apk
+          name: SmartReminder-APK
           path: bin/*.apk
