@@ -33,14 +33,20 @@ jobs:
           pip install cython==0.29.36 buildozer \
             kivy kivymd requests
 
-      - name: Install Android SDK & NDK
+      - name: Install Android SDK, Build Tools, and NDK
         run: |
           mkdir -p $HOME/.buildozer/android/platform
           cd $HOME/.buildozer/android/platform
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
           unzip cmdline-tools.zip -d cmdline-tools
           yes | cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/.buildozer/android/platform \
-            "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;23.1.7779620" "cmdline-tools;latest"
+            "platform-tools" \
+            "platforms;android-33" \
+            "build-tools;33.0.2" \
+            "ndk;23.1.7779620" \
+            "cmdline-tools;latest"
+          # بررسی نصب aidl
+          find $HOME/.buildozer/android/platform/build-tools -name aidl
 
       - name: Build APK
         run: |
