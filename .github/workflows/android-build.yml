@@ -1,46 +1,36 @@
-name: Android Build and Upload
+name: Android Build
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    # ۱- دریافت سورس از ریپو
-    - name: Checkout source code
-      uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-    # ۲- نصب جاوا برای Gradle
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
-    
-    # ۳- دادن دسترسی اجرا به Gradle
-    - name: Grant execute permission for Gradlew
+
+    - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    # ۴- بیلد Debug
-    - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace
+    - name: Build APKs
+      run: ./gradlew assembleRelease
 
-    # ۵- بیلد Release (اختیاری، اگه بخوای می‌تونیم حذف کنیم)
-    - name: Build Release APK
-      run: ./gradlew assembleRelease --stacktrace
-
-    # ۶- آپلود خروجی‌های Debug
-    - name: Upload Debug APK
-      uses: actions/upload-artifact@v4
+    - name: Upload all release APKs
+      uses: actions/upload-artifact@v3
       with:
-        name: app-debug
-        path: app/build/outputs/apk/debug/*.apk
-
-    # ۷- آپلود خروجی‌های Release
-    - name: Upload Release APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release
-        path: app/build/outputs/apk/release/*.apk
+        name: release-apks
+        path: |
+          app/build/outputs/apk/release/*.apk
+          */build/outputs/apk/release/*.apk
+          */*/build/outputs/apk/release/*.apk
