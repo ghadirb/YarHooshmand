@@ -1,60 +1,29 @@
-name: Build Android APK
+name: CI
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # مرحله 1: دریافت سورس کد
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      # مرحله 2: اجرای یک دستور ساخت (نمونه)
+      - name: Build project
+        run: |
+          echo "اینجا فرمان‌های build خودت رو بگذار"
+          # مثلا: npm install && npm run build
+
+      # مرحله 3: آپلود آرتیفکت با نسخه جدید
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
         with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install buildozer cython
-
-      - name: Install Android SDK manually
-        run: |
-          export ANDROID_HOME=$HOME/.buildozer/android/platform
-          mkdir -p $ANDROID_HOME/build-tools/33.0.2
-          cd $ANDROID_HOME/build-tools
-
-          # دانلود نسخهٔ پایدار Build-Tools شامل aidl
-          wget https://dl.google.com/android/repository/build-tools_r33.0.2-linux.zip -O build-tools.zip
-          unzip build-tools.zip -d .
-
-          # نصب command-line tools برای sdkmanager و تایید لایسنس‌ها
-          cd $ANDROID_HOME
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-          mkdir -p cmdline-tools
-          unzip cmdline-tools.zip -d cmdline-tools
-
-          export PATH=$ANDROID_HOME/cmdline-tools/cmdline-tools/bin:$PATH
-
-          yes | sdkmanager --sdk_root=$ANDROID_HOME --licenses
-          yes | sdkmanager --sdk_root=$ANDROID_HOME \
-            "platform-tools" \
-            "platforms;android-33" \
-            "ndk;23.1.7779620" \
-            "cmdline-tools;latest"
-
-      - name: Build APK with Buildozer
-        run: |
-          buildozer android debug
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: SmartReminder-APK
-          path: bin/*.apk
+          name: build-output
+          path: path/to/build/folder  # مسیر پوشه خروجی build
