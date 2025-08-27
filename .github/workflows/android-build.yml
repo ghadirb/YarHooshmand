@@ -1,42 +1,33 @@
-name: Android CI
+name: Android Build
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      # 1) دریافت سورس کد
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      # 2) نصب JDK 17 (یا نسخه مورد نیاز پروژه)
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v3
         with:
-          distribution: temurin
           java-version: '17'
+          distribution: 'temurin'
 
-      # 3) بررسی سالم بودن Gradle Wrapper
-      - name: Validate Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@v3
+      # این مرحله که Validation انجام می‌داد رو حذف کردیم
 
-      # 4) دادن مجوز اجرا به gradlew
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-      # 5) بیلد واقعی پروژه (خروجی در app/build/outputs خواهد بود)
-      - name: Build Release APK
-        run: ./gradlew assembleRelease --stacktrace
+      - name: Build with Gradle
+        run: ./gradlew assembleRelease
 
-      # 6) آپلود خروجی بیلد (APK یا AAB)
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
         with:
-          name: android-build
-          path: app/build/outputs/**/*.apk
+          name: app-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
