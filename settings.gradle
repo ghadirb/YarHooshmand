@@ -1,3 +1,6 @@
+// Import لازم برای RepositoriesMode
+import org.gradle.api.initialization.resolve.RepositoriesMode
+
 pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -7,7 +10,8 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.ALLOW) // ← این خط باعث رفع خطای prefer settings repositories می‌شه
+    // استفاده صحیح از RepositoriesMode
+    repositoriesMode.set(RepositoriesMode.ALLOW)
     repositories {
         google()
         mavenCentral()
