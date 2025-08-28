@@ -1,14 +1,8 @@
 pluginManagement {
     repositories {
+        gradlePluginPortal()
         google()
         mavenCentral()
-        gradlePluginPortal()
-
-        // --- Mirror ها برای تحریم ---
-        maven { url "https://maven.aliyun.com/repository/google" }
-        maven { url "https://maven.aliyun.com/repository/central" }
-        maven { url "https://maven.aliyun.com/repository/public" }
-        maven { url "https://jitpack.io" }
     }
 }
 
@@ -17,14 +11,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-
-        // --- Mirror ها برای تحریم ---
-        maven { url "https://maven.aliyun.com/repository/google" }
-        maven { url "https://maven.aliyun.com/repository/central" }
-        maven { url "https://maven.aliyun.com/repository/public" }
-        maven { url "https://jitpack.io" }
     }
 }
 
-rootProject.name = "YarHooshmandSmartV3"
+rootProject.name = "YarHooshmand"
 include(":app")
