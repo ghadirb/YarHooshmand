@@ -1,15 +1,15 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android' // اگر Kotlin استفاده می‌کنید
+    id 'kotlin-android'
 }
 
 android {
-    namespace 'com.ghadirb.yarhooshmand'
+    namespace 'com.example.yarhooshmand'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.ghadirb.yarhooshmand"
-        minSdk 23
+        applicationId "com.example.yarhooshmand"
+        minSdk 21
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -23,7 +23,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            signingConfig signingConfigs.debug
+            // Debug specific configs if needed
         }
     }
 
@@ -31,18 +31,29 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = '17'
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.10"
 
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    // AndroidX Core
+    implementation "androidx.core:core-ktx:1.12.0"
+    implementation "androidx.appcompat:appcompat:1.7.0"
+    implementation "com.google.android.material:material:1.12.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.2.0"
+
+    // Optional testing dependencies
+    testImplementation "junit:junit:4.13.2"
+    androidTestImplementation "androidx.test.ext:junit:1.1.5"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
 }
+
+// Optional: if you use Jetpack Compose or other features, add them here
