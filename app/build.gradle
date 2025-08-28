@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace 'com.yarhooshmand' // مقدار دلخواه، با پکیج اصلی هماهنگ باشه
+    namespace 'com.yarhooshmand' // با پکیج اصلی هماهنگ باشه
     compileSdk 34
 
     defaultConfig {
