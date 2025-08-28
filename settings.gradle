@@ -1,0 +1,18 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.ALLOW) // ← این خط باعث رفع خطای prefer settings repositories می‌شه
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "YarHooshmand"
+include(":app")
