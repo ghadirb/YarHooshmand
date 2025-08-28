@@ -34,8 +34,18 @@ jobs:
       - name: Grant execute permission to Gradle wrapper
         run: chmod +x ./gradlew
 
+      - name: Remove deprecated package attribute from AndroidManifest.xml files
+        run: |
+          echo "🔍 Scanning for package=\"...\" in AndroidManifest.xml files..."
+          find . -type f -name "AndroidManifest.xml" | while read manifest; do
+            if grep -q 'package=' "$manifest"; then
+              echo "✂️ Removing package= from $manifest"
+              sed -i '/package=/d' "$manifest"
+            fi
+          done
+
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --stacktrace --info
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
