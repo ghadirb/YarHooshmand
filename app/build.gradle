@@ -1,20 +1,19 @@
 plugins {
     id 'com.android.application'
-    // اگر از Kotlin استفاده می‌کنی، این رو هم فعال کن:
+    // اگر از Kotlin استفاده می‌کنی:
     // id 'org.jetbrains.kotlin.android'
 }
 
 android {
-    namespace 'com.example.myapp' // مقدار دلخواه، باید با پکیج اصلی هماهنگ باشه
+    namespace 'com.yarhooshmand' // مقدار دلخواه، با پکیج اصلی هماهنگ باشه
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.myapp" // مقدار دلخواه
+        applicationId "com.yarhooshmand"
         minSdk 21
         targetSdk 34
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
