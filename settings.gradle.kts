@@ -1,0 +1,35 @@
+
+pluginManagement {
+    repositories {
+        maven {
+            url = uri("https://maven-central.storage-download.googleapis.com/maven2/")
+        }
+        maven {
+            url = uri("https://jitpack.io")
+        }
+        maven {
+            url = uri("https://repo1.maven.org/maven2/")
+        }
+        maven {
+            url = uri("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/")
+        }
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositories {
+        mavenLocal()
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+    }
+}
+
+rootProject.name = "YarHooshmandSmartV3"
+include(":app")

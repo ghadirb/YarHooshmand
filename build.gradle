@@ -1,0 +1,25 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        google()
+        maven { url "https://maven-central.storage-download.googleapis.com/maven2/" }
+        maven { url "https://jitpack.io" }
+        maven { url "https://repo1.maven.org/maven2/" }
+        maven { url "https://mirrors.cloud.tencent.com/nexus/repository/maven-public/" }
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:8.3.0"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22"
+    }
+}
+
+allprojects {
+    repositories {
+        mavenLocal()
+        google()
+        maven { url "https://maven-central.storage-download.googleapis.com/maven2/" }
+        maven { url "https://jitpack.io" }
+        maven { url "https://repo1.maven.org/maven2/" }
+        maven { url "https://mirrors.cloud.tencent.com/nexus/repository/maven-public/" }
+    }
+}
