@@ -2,8 +2,11 @@ workflows:
   android-simple-build:
     name: Android Simple Build
     scripts:
+      - name: Give gradlew permission
+        script: chmod +x gradlew
+
       - name: Build unsigned APK
-        script: |
-          ./gradlew clean assembleRelease
+        script: ./gradlew clean assembleRelease
+
     artifacts:
       - app/build/outputs/**/*.apk
