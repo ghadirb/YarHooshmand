@@ -8,8 +8,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-debug:
+  build:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
     steps:
       - name: Checkout
@@ -21,31 +23,32 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Set up Gradle cache
-        uses: gradle/actions/setup-gradle@v3
-
-      - name: Install Android SDK 34 and build-tools 34.0.0
-        uses: android-actions/setup-android@v3
-        with:
-          packages: |
-            platform-tools
-            build-tools;34.0.0
-            platforms;android-34
-
-      - name: Remove local.properties (avoid Windows path issues)
+      - name: Download Android SDK cmdline-tools
         run: |
-          if [ -f local.properties ]; then
-            echo "Deleting local.properties to avoid SDK path conflicts on CI"
-            rm local.properties
-          fi
+          mkdir -p $ANDROID_SDK_ROOT
+          cd $ANDROID_SDK_ROOT
+          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip -d cmdline-tools-temp
+          mkdir -p cmdline-tools/latest
+          mv cmdline-tools-temp/cmdline-tools/* cmdline-tools/latest/
+
+      - name: Install SDK packages
+        run: |
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
+            "platform-tools" \
+            "build-tools;34.0.0" \
+            "platforms;android-34"
+
+      - name: Accept licenses
+        run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses --sdk_root=$ANDROID_SDK_ROOT
 
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Assemble Debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace --no-daemon
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --stacktrace --no-daemon
 
-      - name: Upload debug APK(s)
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: yarhooshmand-debug-apk
