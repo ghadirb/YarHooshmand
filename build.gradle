@@ -9,6 +9,6 @@ buildscript {
     }
 }
 
-tasks.register<Delete>("clean") {
-    delete(rootProject.buildDir)
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
