@@ -1,0 +1,30 @@
+workflows:
+  android-signed-workflow:
+    name: Android Signed Build Workflow
+    instance_type: linux
+    environment:
+      vars:
+        JAVA_HOME: "/usr/lib/jvm/java-11-openjdk-amd64"
+        KEYSTORE_PASSWORD: Encrypted(...)
+        KEY_ALIAS: Encrypted(...)
+        KEY_PASSWORD: Encrypted(...)
+    scripts:
+      - name: Install dependencies
+        script: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-11-jdk
+      - name: Build signed APK
+        script: |
+          # Copy keystore file to project
+          cp keystore.jks app/keystore.jks
+          
+          # Set Gradle properties for signing
+          echo "RELEASE_STORE_FILE=app/keystore.jks" >> app/gradle.properties
+          echo "RELEASE_STORE_PASSWORD=$KEYSTORE_PASSWORD" >> app/gradle.properties
+          echo "RELEASE_KEY_ALIAS=$KEY_ALIAS" >> app/gradle.properties
+          echo "RELEASE_KEY_PASSWORD=$KEY_PASSWORD" >> app/gradle.properties
+
+          # Build signed release
+          ./gradlew assembleRelease
+    artifacts:
+      - app/build/outputs/**/*.apk
