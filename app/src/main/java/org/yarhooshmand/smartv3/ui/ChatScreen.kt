@@ -7,6 +7,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -17,11 +18,14 @@ fun ChatScreen() {
     var input by rememberSaveable { mutableStateOf("") }
     var history by rememberSaveable { mutableStateOf(listOf<String>()) }
     val scroll = rememberScrollState()
-
     val ctx = LocalContext.current
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
-        Text("گفتگو", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text(
+            "گفتگو",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
         Spacer(Modifier.height(12.dp))
         Column(Modifier.weight(1f).verticalScroll(scroll)) {
             history.forEach { line ->
@@ -41,7 +45,6 @@ fun ChatScreen() {
                 val t = input.trim()
                 if (t.isNotEmpty()) {
                     history = history + "👤: $t"
-                    // اصلاح: Context اضافه شد
                     history = history + ("🤖: " + (ChatClient.chatLocal(ctx, t) ?: "پاسخی دریافت نشد"))
                     input = ""
                 }
