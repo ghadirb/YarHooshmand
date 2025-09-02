@@ -1,7 +1,7 @@
 workflows:
   android-simple-build:
     name: Android Simple Build
-    instance_type: linux
+    instance_type: linux_x2
     environment:
       vars:
         JAVA_HOME: "/usr/lib/jvm/java-11-openjdk-amd64"
