@@ -39,7 +39,7 @@ fun AppNav() {
     ) { pad ->
         NavHost(nav, "chat", Modifier.padding(pad)) {
             composable("chat") { ChatScreen() }
-            composable("models") { ModelsScreen() }
+            composable("models") { ModelsScreen() } // مطمئن شوید ModelsScreen و SettingsScreen در پروژه وجود دارند
             composable("reminders") { RemindersScreen() }
             composable("settings") { SettingsScreen() }
         }
