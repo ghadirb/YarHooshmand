@@ -1,11 +1,6 @@
 package org.yarhooshmand.smartv3.ui
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.speech.RecognizerIntent
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,39 +42,24 @@ fun RemindersScreen() {
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         Text("یادآورها", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
-        OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
-            label = { Text("متن") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text("متن") }, modifier = Modifier.fillMaxWidth())
         Spacer(Modifier.height(8.dp))
-        OutlinedTextField(
-            value = timeInput,
-            onValueChange = { timeInput = it },
-            label = { Text("زمان (YYYY-MM-DD HH:mm)") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        OutlinedTextField(value = timeInput, onValueChange = { timeInput = it }, label = { Text("زمان (YYYY-MM-DD HH:mm)") }, modifier = Modifier.fillMaxWidth())
         Spacer(Modifier.height(8.dp))
 
+        // Date & Time Pickers
+        val act = ctx as? ComponentActivity
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
-            val act = ctx as? ComponentActivity
             Button(onClick = {
                 act?.runOnUiThread {
                     val nowCal = Calendar.getInstance()
-                    val dp = android.app.DatePickerDialog(
-                        ctx,
-                        { _, y, m, d ->
-                            val existing = try { dateFmt.parse(timeInput) } catch (_: Exception) { null }
-                            val hh = existing?.hours ?: 9
-                            val mm = existing?.minutes ?: 0
-                            val cal = Calendar.getInstance().apply { set(y, m, d, hh, mm) }
-                            timeInput = dateFmt.format(Date(cal.timeInMillis))
-                        },
-                        nowCal.get(Calendar.YEAR),
-                        nowCal.get(Calendar.MONTH),
-                        nowCal.get(Calendar.DAY_OF_MONTH)
-                    )
+                    val dp = android.app.DatePickerDialog(ctx, { _, y, m, d ->
+                        val cal = Calendar.getInstance()
+                        val existing = try { dateFmt.parse(timeInput)?.time } catch (_: Exception) { null }
+                        cal.timeInMillis = existing ?: System.currentTimeMillis()
+                        cal.set(y, m, d)
+                        timeInput = dateFmt.format(cal.time)
+                    }, nowCal.get(Calendar.YEAR), nowCal.get(Calendar.MONTH), nowCal.get(Calendar.DAY_OF_MONTH))
                     dp.show()
                 }
             }) { Text("انتخاب تاریخ") }
@@ -88,23 +68,14 @@ fun RemindersScreen() {
             Button(onClick = {
                 act?.runOnUiThread {
                     val nowCal = Calendar.getInstance()
-                    val tp = android.app.TimePickerDialog(
-                        ctx,
-                        { _, h, min ->
-                            val existing = try { dateFmt.parse(timeInput) } catch (_: Exception) { null }
-                            val y = existing?.let { Calendar.getInstance().apply { time = it }?.get(Calendar.YEAR) }
-                                ?: nowCal.get(Calendar.YEAR)
-                            val mon = existing?.let { Calendar.getInstance().apply { time = it }?.get(Calendar.MONTH) }
-                                ?: nowCal.get(Calendar.MONTH)
-                            val d = existing?.let { Calendar.getInstance().apply { time = it }?.get(Calendar.DAY_OF_MONTH) }
-                                ?: nowCal.get(Calendar.DAY_OF_MONTH)
-                            val cal = Calendar.getInstance().apply { set(y!!, mon!!, d!!, h, min) }
-                            timeInput = dateFmt.format(Date(cal.timeInMillis))
-                        },
-                        nowCal.get(Calendar.HOUR_OF_DAY),
-                        nowCal.get(Calendar.MINUTE),
-                        true
-                    )
+                    val tp = android.app.TimePickerDialog(ctx, { _, h, m ->
+                        val cal = Calendar.getInstance()
+                        val existing = try { dateFmt.parse(timeInput)?.time } catch (_: Exception) { null }
+                        cal.timeInMillis = existing ?: System.currentTimeMillis()
+                        cal.set(Calendar.HOUR_OF_DAY, h)
+                        cal.set(Calendar.MINUTE, m)
+                        timeInput = dateFmt.format(cal.time)
+                    }, nowCal.get(Calendar.HOUR_OF_DAY), nowCal.get(Calendar.MINUTE), true)
                     tp.show()
                 }
             }) { Text("انتخاب زمان") }
@@ -138,11 +109,11 @@ fun RemindersScreen() {
                 scope.launch(Dispatchers.IO) {
                     val f = File(ctx.cacheDir, "reminders_export.json")
                     if (!f.exists()) { Toast.makeText(ctx, "No export file found", Toast.LENGTH_SHORT).show(); return@launch }
-                    val type = object : com.google.gson.reflect.TypeToken<Array<Map<String, Any>>>() {}.type
-                    val arr: Array<Map<String, Any>> = Gson().fromJson(f.readText(), type)
+                    val listType = object : com.google.gson.reflect.TypeToken<List<Map<String, Any>>>() {}.type
+                    val arr: List<Map<String, Any>> = Gson().fromJson(f.readText(), listType)
                     for (m in arr) {
                         val t = (m["text"] as? String) ?: "یادآوری"
-                        val tm = (m["timeMillis"] as? Double)?.toLong() ?: (m["timeMillis"] as? Long) ?: System.currentTimeMillis()+60000
+                        val tm = (m["timeMillis"] as? Double)?.toLong() ?: (m["timeMillis"] as? Long) ?: System.currentTimeMillis() + 60000
                         dao.insert(ReminderEntity(text = t, timeMillis = tm))
                     }
                     reload()
@@ -159,10 +130,7 @@ fun RemindersScreen() {
             LazyColumn(Modifier.fillMaxSize()) {
                 items(list) { item ->
                     Card(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                        Row(
-                            Modifier.fillMaxWidth().padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
+                        Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                             Column(Modifier.weight(1f)) {
                                 Text(item.text, style = MaterialTheme.typography.titleMedium)
                                 Text(dateFmt.format(Date(item.timeMillis)), style = MaterialTheme.typography.bodySmall)
