@@ -10,24 +10,43 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.saveable.rememberSaveable
 import org.yarhooshmand.smartv3.net.ChatClient
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import kotlinx.coroutines.launch
 
 @Composable
 fun ChatScreen() {
     var input by rememberSaveable { mutableStateOf("") }
     var history by rememberSaveable { mutableStateOf(listOf<String>()) }
     val scroll = rememberScrollState()
+    val scope = rememberCoroutineScope()
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         Text("گفتگو", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(12.dp))
-        Column(Modifier.weight(1f).verticalScroll(scroll)) {
+        Column(
+            Modifier
+                .weight(1f)
+                .verticalScroll(scroll)
+        ) {
             history.forEach { line ->
                 Text(line, style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(6.dp))
             }
         }
+
+        // Scroll to bottom when new message arrives
+        LaunchedEffect(history.size) {
+            scroll.animateScrollTo(scroll.maxValue)
+        }
+
         Row {
-            OutlinedTextField(value = input, onValueChange = { input = it }, modifier = Modifier.weight(1f), placeholder = { Text("پیام...") })
+            OutlinedTextField(
+                value = input,
+                onValueChange = { input = it },
+                modifier = Modifier.weight(1f),
+                placeholder = { Text("پیام...") }
+            )
             Spacer(Modifier.width(8.dp))
             Button(onClick = {
                 val t = input.trim()
