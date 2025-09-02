@@ -1,29 +1,16 @@
 workflows:
-  android-full-build:
-    name: Android Full Build Workflow
+  android-simple-build:
+    name: Android Simple Build
     instance_type: linux
     environment:
       vars:
         JAVA_HOME: "/usr/lib/jvm/java-11-openjdk-amd64"
-        KEYSTORE_PASSWORD: Encrypted("YOUR_KEYSTORE_PASSWORD")
-        KEY_ALIAS: Encrypted("YOUR_KEY_ALIAS")
-        KEY_PASSWORD: Encrypted("YOUR_KEY_PASSWORD")
     scripts:
       - name: Install dependencies
         script: |
           sudo apt-get update
           sudo apt-get install -y openjdk-11-jdk
-      - name: Prepare keystore
-        script: |
-          # اگر keystore داخل پروژه هست، این خط کافی است
-          cp keystore.jks app/keystore.jks
-          
-          # اضافه کردن تنظیمات signing به gradle.properties
-          echo "RELEASE_STORE_FILE=app/keystore.jks" >> app/gradle.properties
-          echo "RELEASE_STORE_PASSWORD=$KEYSTORE_PASSWORD" >> app/gradle.properties
-          echo "RELEASE_KEY_ALIAS=$KEY_ALIAS" >> app/gradle.properties
-          echo "RELEASE_KEY_PASSWORD=$KEY_PASSWORD" >> app/gradle.properties
-      - name: Build signed APK
+      - name: Build unsigned APK
         script: |
           ./gradlew clean assembleRelease
     artifacts:
