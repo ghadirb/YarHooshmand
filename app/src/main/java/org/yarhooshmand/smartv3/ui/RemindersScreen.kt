@@ -23,10 +23,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.runtime.rememberCoroutineScope
 
 @Composable
 fun RemindersScreen() {
@@ -49,11 +45,21 @@ fun RemindersScreen() {
     LaunchedEffect(Unit) { reload() }
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
-        Text("یادآورها", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text("یادآورها", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
-        OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text("متن") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            label = { Text("متن") },
+            modifier = Modifier.fillMaxWidth()
+        )
         Spacer(Modifier.height(8.dp))
-        OutlinedTextField(value = timeInput, onValueChange = { timeInput = it }, label = { Text("زمان (YYYY-MM-DD HH:mm)") }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(
+            value = timeInput,
+            onValueChange = { timeInput = it },
+            label = { Text("زمان (YYYY-MM-DD HH:mm)") },
+            modifier = Modifier.fillMaxWidth()
+        )
         Spacer(Modifier.height(8.dp))
 
         // Date & Time pickers
@@ -143,12 +149,14 @@ fun RemindersScreen() {
         }
 
         Spacer(Modifier.height(12.dp))
+
         // Filters
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Button(onClick = { filter = 0 }) { Text("همه") }
             Button(onClick = { filter = 1 }) { Text("در انتظار") }
             Button(onClick = { filter = 2 }) { Text("انجام‌شده") }
         }
+
         Spacer(Modifier.height(8.dp))
 
         // List / Table view
@@ -157,6 +165,7 @@ fun RemindersScreen() {
             2 -> list.filter { it.done }
             else -> list
         }
+
         if (showTable) {
             LazyColumn(Modifier.fillMaxSize()) {
                 items(display) { item ->
@@ -164,4 +173,36 @@ fun RemindersScreen() {
                         Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                             Column(Modifier.weight(1f)) {
                                 Text(item.text, style = MaterialTheme.typography.titleMedium, modifier = Modifier.clickable { })
-                                Text(dateFmt.format(Date(item.timeMillis)), style = MaterialTheme.typ
+                                Text(dateFmt.format(Date(item.timeMillis)), style = MaterialTheme.typography.bodySmall)
+                            }
+                            Column {
+                                Checkbox(checked = item.done, onCheckedChange = { checked ->
+                                    scope.launch(Dispatchers.IO) {
+                                        dao.update(item.copy(done = checked))
+                                        reload()
+                                    }
+                                })
+                                Spacer(Modifier.height(8.dp))
+                                Button(onClick = {
+                                    scope.launch(Dispatchers.IO) {
+                                        dao.delete(item)
+                                        reload()
+                                    }
+                                }) { Text("حذف") }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            Column(Modifier.fillMaxSize()) {
+                display.forEach { item ->
+                    Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(item.text)
+                        Text(dateFmt.format(Date(item.timeMillis)))
+                    }
+                }
+            }
+        }
+    }
+}
