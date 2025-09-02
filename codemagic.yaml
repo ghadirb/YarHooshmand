@@ -1,6 +1,8 @@
 workflows:
   android-simple-build:
     name: Android Simple Build
+    environment:
+      java: 17
     scripts:
       - name: Give gradlew permission
         script: chmod +x gradlew
