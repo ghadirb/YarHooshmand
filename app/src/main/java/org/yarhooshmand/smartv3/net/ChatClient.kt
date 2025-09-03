@@ -1,5 +1,6 @@
 package org.yarhooshmand.smartv3.net
 
+import android.content.Context
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -7,7 +8,6 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.yarhooshmand.smartv3.keys.KeysManager
 import org.yarhooshmand.smartv3.models.ModelManager
-import android.content.Context
 import java.util.concurrent.TimeUnit
 
 object ChatClient {
@@ -16,15 +16,15 @@ object ChatClient {
     private val json = "application/json; charset=utf-8".toMediaType()
 
     fun chatLocal(ctx: Context, prompt: String): String? {
-        // If no API key configured, return a friendly local reply.
         val key = KeysManager.getActiveKey(ctx)
         if (key.isNullOrBlank()) {
             return when {
                 prompt.contains("سلام") -> "سلام! چطور می‌تونم کمک کنم؟"
-                prompt.trim().endsWith("?") -> "سوال خوبیه! فعلاً به اینترنت متصل نیستم، ولی می‌تونم به شکل محلی پاسخ ساده بدم."
-                else -> "پیامت رسید. برای پاسخ‌های بهتر، از بخش تنظیمات کلید API رو وارد کن."
+                prompt.trim().endsWith("?") -> "سؤال خوبیه! فعلاً به اینترنت متصل نیستم، اما می‌تونم پاسخ ساده بدم."
+                else -> "پیامت رسید. برای پاسخ‌های بهتر، از تنظیمات کلید API وارد کن."
             }
         }
+
         val model = ModelManager.firstEnabled() ?: "gpt-4o-mini"
         val body = gson.toJson(
             mapOf(
@@ -35,13 +35,14 @@ object ChatClient {
                 )
             )
         )
-        // try keys until success or exhausted
+
         val tried = mutableSetOf<String>()
         var lastEx: Exception? = null
+
         while (true) {
             val curKey = KeysManager.getActiveKeySafe() ?: break
-            if (tried.contains(curKey)) break
-            tried.add(curKey)
+            if (!tried.add(curKey)) break
+
             try {
                 val req = Request.Builder()
                     .url("https://api.openai.com/v1/chat/completions")
@@ -49,28 +50,32 @@ object ChatClient {
                     .addHeader("Content-Type", "application/json")
                     .post(body.toRequestBody(json))
                     .build()
-                client.newCall(req).execute().use { resp ->
-                    val text = resp.body?.string()
-                    if (!resp.isSuccessful || text == null) {
-                        // if auth error, mark key bad and try next
-                        if (resp.code == 401 || resp.code == 403) {
+
+                val resp = client.newCall(req).execute()
+                var tryNext = false
+                resp.use { r ->
+                    val text = r.body?.string()
+                    if (!r.isSuccessful || text == null) {
+                        if (r.code == 401 || r.code == 403) {
                             KeysManager.reportBadKeyInternal(curKey)
-                            continue
+                            tryNext = true
+                        } else {
+                            return null
                         }
-                        return null
+                    } else {
+                        val obj = gson.fromJson(text, Map::class.java)
+                        val choices = obj["choices"] as? List<*>
+                        val first = choices?.firstOrNull() as? Map<*, *>
+                        val msg = first?.get("message") as? Map<*, *>
+                        val content = msg?.get("content") as? String
+                        return content?.trim()
                     }
-                    val obj = gson.fromJson(text, Map::class.java)
-                    val choices = obj["choices"] as? List<*>
-                    val first = choices?.firstOrNull() as? Map<*, *>
-                    val msg = first?.get("message") as? Map<*, *>
-                    val content = msg?.get("content") as? String
-                    return content?.trim()
                 }
+                if (tryNext) continue
             } catch (ex: Exception) {
                 lastEx = ex
-                // if network-level exception, mark that key bad briefly and try next
                 KeysManager.reportBadKeyInternal(curKey)
-                continue
+                // می‌ریم سراغ کلید بعدی
             }
         }
         return null
