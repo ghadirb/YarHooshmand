@@ -7,7 +7,7 @@ workflows:
       - name: Give gradlew permission
         script: chmod +x gradlew
 
-      - name: Build release APK
+      - name: Build Release APK
         script: ./gradlew clean assembleRelease
 
     artifacts:
