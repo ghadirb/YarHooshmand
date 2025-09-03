@@ -3,6 +3,7 @@ workflows:
     name: Android Simple Build
     environment:
       java: 17
+      flutter: stable # اگر پروژه Flutter نیست، می‌توانید این خط را حذف کنید
     scripts:
       - name: Give gradlew permission
         script: chmod +x gradlew
@@ -12,3 +13,9 @@ workflows:
 
     artifacts:
       - app/build/outputs/**/*.apk
+
+    publishing:
+      # اختیاری: اگر می‌خواهید فایل APK ساخته شده را آپلود کنید
+      email:
+        recipients:
+          - "your.email@example.com"
