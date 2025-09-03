@@ -46,7 +46,6 @@ android {
     }
 
     composeOptions {
-        // هماهنگ با Kotlin 1.9.24
         kotlinCompilerExtensionVersion = "1.5.14"
     }
 
@@ -86,7 +85,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("com.google.code.gson:gson:2.10.1")
 
-    // Security (اختیاری ولی مفید)
+    // Security
     implementation("androidx.security:security-crypto:1.1.0")
 
     // Material
@@ -95,6 +94,9 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    // ✅ WorkManager
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
 
     // Testing
     testImplementation("junit:junit:4.13.2")
