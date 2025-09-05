@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ReminderDao {
+
     @Query("SELECT * FROM reminders ORDER BY date ASC")
     fun getAll(): Flow<List<Reminder>>
 
