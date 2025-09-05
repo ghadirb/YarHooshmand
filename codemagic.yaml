@@ -5,7 +5,6 @@ workflows:
     instance_type: mac_mini_m2
     environment:
       java: 17
-      android: true
     scripts:
       - name: Clean & Build
         script: |
