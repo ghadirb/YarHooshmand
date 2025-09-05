@@ -6,6 +6,9 @@ workflows:
     environment:
       java: 17
     scripts:
+      - name: Grant Permission
+        script: |
+          chmod +x ./gradlew
       - name: Clean & Build
         script: |
           ./gradlew clean :app:assembleRelease
