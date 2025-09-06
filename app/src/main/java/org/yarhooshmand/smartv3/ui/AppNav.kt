@@ -1,14 +1,29 @@
 package org.yarhooshmand.smartv3.ui
 
-import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import org.yarhooshmand.smartv3.data.ReminderRepository
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import org.yarhooshmand.smartv3.viewmodel.ReminderViewModel
 
 @Composable
-fun AppNav() {
-    val ctx = LocalContext.current
-    val repo = remember { ReminderRepository.getInstance(ctx) }
-    RemindersScreen(repository = repo) { }
+fun AppNav(navController: NavHostController, reminderViewModel: ReminderViewModel) {
+    NavHost(navController = navController, startDestination = "reminders") {
+
+        composable("reminders") {
+            RemindersScreen(viewModel = reminderViewModel, navController = navController)
+        }
+
+        composable("today") {
+            TodayScreen(viewModel = reminderViewModel)
+        }
+
+        composable("week") {
+            WeekScreen(viewModel = reminderViewModel)
+        }
+
+        composable("dashboard") {
+            DashboardScreen(navController = navController)
+        }
+    }
 }
