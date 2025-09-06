@@ -2,23 +2,17 @@ package org.yarhooshmand.smartv3.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.ColumnInfo
+import androidx.room.TypeConverters
 
 @Entity(tableName = "reminders")
+@TypeConverters(SmsTargetsConverter::class)
 data class ReminderEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-
-    @ColumnInfo(name = "title") val title: String,
-    @ColumnInfo(name = "note") val note: String? = null,
-    @ColumnInfo(name = "date") val date: Long? = null,
-
-    @ColumnInfo(name = "done") val done: Boolean = false,
-    @ColumnInfo(name = "completed") val completed: Boolean = false,
-    @ColumnInfo(name = "completedAt") val completedAt: Long? = null,
-
-    // امکانات اضافه
-    @ColumnInfo(name = "text") val text: String? = null,
-    @ColumnInfo(name = "timeMillis") val timeMillis: Long? = null,
-    @ColumnInfo(name = "category") val category: String? = null,
-    @ColumnInfo(name = "smsTargets") val smsTargets: String? = null
+    val text: String,
+    val timeMillis: Long,
+    val category: String? = null,
+    val smsTargets: List<String> = emptyList(),
+    val done: Boolean = false,
+    val completed: Boolean = false,
+    val completedAt: Long? = null
 )
