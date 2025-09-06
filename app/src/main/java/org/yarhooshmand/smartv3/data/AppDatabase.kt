@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 @Database(entities = [Reminder::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
-    // فقط یک متد برای دسترسی مستقیم به DAO
+    // فقط یک متد DAO
     abstract fun reminderDao(): ReminderDao
 
     companion object {
@@ -27,15 +27,4 @@ abstract class AppDatabase : RoomDatabase() {
                     .also { INSTANCE = it }
             }
     }
-}
-
-/**
- * Wrapper برای سازگاری با کدهای قدیمی.
- * اگر جایی در پروژه نوشته بود: ReminderDatabase.get(context).dao()
- * اینجا map می‌کنیم به AppDatabase.get(context).reminderDao()
- */
-object ReminderDatabase {
-    fun get(context: Context): AppDatabase = AppDatabase.get(context)
-
-    fun dao(context: Context): ReminderDao = get(context).reminderDao()
 }
