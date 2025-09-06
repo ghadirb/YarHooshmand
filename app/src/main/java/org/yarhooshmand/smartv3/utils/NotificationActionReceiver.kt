@@ -10,17 +10,16 @@ import org.yarhooshmand.smartv3.data.ReminderDatabase
 
 class NotificationActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == ACTION_MARK_DONE) {
-            val id = intent.getIntExtra(EXTRA_REMINDER_ID, -1)
-            if (id > 0) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    ReminderDatabase.get(context).reminderDao().markCompleted(id, System.currentTimeMillis())
-                }
+        val id = intent.getLongExtra("id", -1L)
+        val action = intent.getStringExtra("action") ?: ""
+        if (id <= 0L) return
+
+        val dao = ReminderDatabase.getInstance(context).reminderDao()
+        CoroutineScope(Dispatchers.IO).launch {
+            when (action) {
+                "MARK_DONE" -> dao.markCompleted(id)
+                // "DELETE" -> dao.delete(...)
             }
         }
-    }
-    companion object {
-        const val ACTION_MARK_DONE = "org.yarhooshmand.smartv3.ACTION_MARK_DONE"
-        const val EXTRA_REMINDER_ID = "reminder_id"
     }
 }
