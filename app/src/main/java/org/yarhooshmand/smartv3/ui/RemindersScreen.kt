@@ -4,36 +4,46 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.collectAsState
-import kotlinx.coroutines.flow.distinctUntilChanged
-import org.yarhooshmand.smartv3.data.ReminderDatabase
 import org.yarhooshmand.smartv3.data.ReminderEntity
+import org.yarhooshmand.smartv3.data.ReminderRepository
 
 @Composable
-fun RemindersScreen() {
-    val ctx = androidx.compose.ui.platform.LocalContext.current
-    val dao = remember { ReminderDatabase.getInstance(ctx).reminderDao() }
-    val reminders by dao.getAll()
-        .distinctUntilChanged()
-        .collectAsState(initial = emptyList())
+fun RemindersScreen(repository: ReminderRepository, onReminderClick: (ReminderEntity) -> Unit) {
+    val reminders by repository.allReminders.collectAsState(initial = emptyList())
 
-    Scaffold { pad ->
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("یادآورها") })
+        }
+    ) { padding ->
         LazyColumn(
-            contentPadding = pad,
-            modifier = Modifier.fillMaxSize().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(padding).fillMaxSize()
         ) {
-            items(reminders, key = { it.id }) { r: ReminderEntity ->
-                Card(Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(12.dp)) {
-                        Text(r.text, style = MaterialTheme.typography.titleMedium)
-                        Text("زمان: ${r.timeMillis}")
-                        if (r.category.isNotBlank()) Text("دسته: ${r.category}")
-                    }
-                }
+            items(reminders) { reminder ->
+                ReminderItem(reminder, onClick = { onReminderClick(reminder) })
+            }
+        }
+    }
+}
+
+@Composable
+fun ReminderItem(reminder: ReminderEntity, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        onClick = onClick
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = reminder.text, style = MaterialTheme.typography.titleMedium)
+            Text(text = "زمان: ${reminder.timeMillis}", style = MaterialTheme.typography.bodySmall)
+            reminder.category?.let {
+                Text(text = "دسته: $it", style = MaterialTheme.typography.bodySmall)
             }
         }
     }
