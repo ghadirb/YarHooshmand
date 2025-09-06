@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 @Database(entities = [Reminder::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
-    // ✅ فقط همین متد DAO باقی می‌مونه
+    // ✅ فقط یک متد DAO
     abstract fun reminderDao(): ReminderDao
 
     companion object {
