@@ -1,36 +1,45 @@
 package org.yarhooshmand.smartv3.ui
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import org.yarhooshmand.smartv3.data.ReminderEntity
-import org.yarhooshmand.smartv3.data.ReminderRepository
+import androidx.navigation.NavController
+import org.yarhooshmand.smartv3.data.Reminder
+import org.yarhooshmand.smartv3.viewmodel.ReminderViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RemindersScreen(repository: ReminderRepository, onReminderClick: (ReminderEntity) -> Unit = {}) {
-    val reminders by repository.allReminders.collectAsState(initial = emptyList())
+fun RemindersScreen(
+    navController: NavController,
+    viewModel: ReminderViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
+    val reminders = viewModel.reminders.collectAsState(initial = emptyList())
 
-    Scaffold(topBar = { TopAppBar(title = { Text("یادآورها") }) }) { padding ->
-        LazyColumn(modifier = Modifier.padding(padding).fillMaxSize()) {
-            items(reminders) { r ->
-                ReminderItem(r) { onReminderClick(r) }
-            }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("یادآورها") }
+            )
         }
-    }
-}
-
-@Composable
-private fun ReminderItem(reminder: ReminderEntity, onClick: () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth().padding(8.dp), onClick = onClick) {
-        Column(Modifier.padding(16.dp)) {
-            Text(text = reminder.text, style = MaterialTheme.typography.titleMedium)
-            Text(text = "زمان: ${reminder.timeMillis}", style = MaterialTheme.typography.bodySmall)
-            reminder.category?.let { Text(text = "دسته: $it", style = MaterialTheme.typography.bodySmall) }
+    ) { padding ->
+        if (reminders.value.isEmpty()) {
+            Text(
+                text = "هیچ یادآوری ثبت نشده",
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(reminders.value) { reminder: Reminder ->
+                    ListItem(
+                        headlineText = { Text(reminder.title) },
+                        supportingText = { Text(reminder.description ?: "") }
+                    )
+                    Divider()
+                }
+            }
         }
     }
 }
