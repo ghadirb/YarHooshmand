@@ -11,9 +11,7 @@ import androidx.navigation.NavController
 @Composable
 fun DashboardScreen(navController: NavController) {
     Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("داشبورد") })
-        }
+        topBar = { TopAppBar(title = { Text("داشبورد") }) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -24,27 +22,7 @@ fun DashboardScreen(navController: NavController) {
             Button(
                 onClick = { navController.navigate("reminders") },
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("مدیریت یادآورها")
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = { navController.navigate("chat") },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("چت هوشمند")
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = { navController.navigate("settings") },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("تنظیمات")
-            }
+            ) { Text("مدیریت یادآورها") }
         }
     }
 }
