@@ -1,19 +1,25 @@
 package org.yarhooshmand.smartv3.utils
 
 import android.content.Context
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
 import org.yarhooshmand.smartv3.data.AppDatabase
 import org.yarhooshmand.smartv3.data.ReminderEntity
 
-object BackupUtils {
-    suspend fun exportBackup(context: Context): List<ReminderEntity> =
-        withContext(Dispatchers.IO) {
-            AppDatabase.getInstance(context).reminderDao().getAllOnce()
-        }
+class BackupWorker(
+    ctx: Context,
+    params: WorkerParameters
+) : CoroutineWorker(ctx, params) {
 
-    suspend fun importBackup(context: Context, reminders: List<ReminderEntity>) =
-        withContext(Dispatchers.IO) {
-            AppDatabase.getInstance(context).reminderDao().insertAll(reminders)
+    override suspend fun doWork(): Result {
+        return try {
+            val dao = AppDatabase.getInstance(applicationContext).reminderDao()
+            val reminders: List<ReminderEntity> = dao.getAllOnce()
+
+            // TODO: sync reminders with server or local file
+            Result.success()
+        } catch (e: Exception) {
+            Result.failure()
         }
+    }
 }
