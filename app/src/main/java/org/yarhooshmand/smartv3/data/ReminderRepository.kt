@@ -3,24 +3,44 @@ package org.yarhooshmand.smartv3.data
 import android.content.Context
 import kotlinx.coroutines.flow.Flow
 
-class ReminderRepository private constructor(context: Context) {
-    private val dao: ReminderDao = AppDatabase.getInstance(context).reminderDao()
+class ReminderRepository private constructor(private val reminderDao: ReminderDao) {
 
-    val allReminders: Flow<List<ReminderEntity>> = dao.getAll()
+    // لیست زنده (Flow)
+    fun getAllReminders(): Flow<List<ReminderEntity>> {
+        return reminderDao.getAllReminders()
+    }
 
-    fun getReminderById(id: Long) = dao.getReminderById(id)
-    suspend fun getByIdOnce(id: Long) = dao.getByIdOnce(id)
-    suspend fun getAllOnce() = dao.getAllOnce()
-    suspend fun insert(reminder: ReminderEntity): Long = dao.insert(reminder)
-    suspend fun insertAll(reminders: List<ReminderEntity>) = dao.insertAll(reminders)
-    suspend fun update(reminder: ReminderEntity) = dao.update(reminder)
-    suspend fun delete(reminder: ReminderEntity) = dao.delete(reminder)
+    // گرفتن همه یادآورها یکجا (برای جاهایی که Flow لازم نیست)
+    suspend fun getAllOnce(): List<ReminderEntity> {
+        return reminderDao.getAllOnce()
+    }
+
+    // افزودن یادآور
+    suspend fun insert(reminder: ReminderEntity) {
+        reminderDao.insert(reminder)
+    }
+
+    // بروزرسانی یادآور
+    suspend fun update(reminder: ReminderEntity) {
+        reminderDao.update(reminder)
+    }
+
+    // حذف یادآور
+    suspend fun delete(reminder: ReminderEntity) {
+        reminderDao.delete(reminder)
+    }
 
     companion object {
-        @Volatile private var INSTANCE: ReminderRepository? = null
-        fun getInstance(context: Context): ReminderRepository =
-            INSTANCE ?: synchronized(this) {
-                INSTANCE ?: ReminderRepository(context.applicationContext).also { INSTANCE = it }
+        @Volatile
+        private var INSTANCE: ReminderRepository? = null
+
+        fun getInstance(context: Context): ReminderRepository {
+            return INSTANCE ?: synchronized(this) {
+                val database = AppDatabase.getDatabase(context)
+                val instance = ReminderRepository(database.reminderDao())
+                INSTANCE = instance
+                instance
             }
+        }
     }
 }
