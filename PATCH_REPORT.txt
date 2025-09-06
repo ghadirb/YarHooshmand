@@ -1,0 +1,7 @@
+Patched files and actions taken:
+modified: /mnt/data/YarHooshmandSmartV3_work/YarHooshmandSmartV3/build.gradle.kts
+modified: /mnt/data/YarHooshmandSmartV3_work/YarHooshmandSmartV3/app/build.gradle.kts
+modified: /mnt/data/YarHooshmandSmartV3_work/YarHooshmandSmartV3/app/src/main/AndroidManifest.xml
+created: /mnt/data/YarHooshmandSmartV3_work/YarHooshmandSmartV3/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+created: /mnt/data/YarHooshmandSmartV3_work/YarHooshmandSmartV3/app/src/main/res/mipmap/ic_launcher_foreground.png
+created: /mnt/data/YarHooshmandSmartV3_work/YarHooshmandSmartV3/app/src/main/res/values/colors.xml
