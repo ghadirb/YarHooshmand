@@ -10,8 +10,12 @@ fun scheduleReminder(ctx: Context, id: Long, timeMillis: Long, text: String) {
     val intent = Intent(ctx, ReminderReceiver::class.java).apply {
         putExtra("id", id)
         putExtra("text", text)
-            if (!smsTargets.isNullOrBlank()) putExtra("smsTargets", smsTargets)
     }
-    val pi = PendingIntent.getBroadcast(ctx, id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    val pi = PendingIntent.getBroadcast(
+        ctx,
+        id.toInt(),
+        intent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
     am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeMillis, pi)
 }
