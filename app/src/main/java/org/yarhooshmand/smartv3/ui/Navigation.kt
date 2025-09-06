@@ -11,19 +11,12 @@ fun Navigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "reminders"
+        startDestination = "dashboard"
     ) {
-        composable("reminders") {
-            RemindersScreen(navController = navController)
-        }
-        composable("dashboard") {
-            DashboardScreen(navController = navController)
-        }
-        composable("chat") {
-            ChatScreen(navController = navController)
-        }
-        composable("settings") {
-            SettingsScreen(navController = navController)
-        }
+        composable("dashboard") { DashboardScreen(navController) }
+        composable("reminders") { RemindersScreen(navController) }
+        // اگر صفحات دیگری داری می‌توانی اضافه کنی:
+        // composable("chat") { ChatScreen(navController) }
+        // composable("settings") { SettingsScreen(navController) }
     }
 }
