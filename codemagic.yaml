@@ -6,9 +6,10 @@ workflows:
     environment:
       java: 17
     scripts:
+      - name: Set Gradlew Permission
+        script: chmod +x ./gradlew
       - name: Clean & Build
-        script: |
-          ./gradlew clean :app:assembleRelease
+        script: ./gradlew clean :app:assembleRelease
     artifacts:
       - app/build/outputs/**/*.apk
       - app/build/outputs/**/*.aab
