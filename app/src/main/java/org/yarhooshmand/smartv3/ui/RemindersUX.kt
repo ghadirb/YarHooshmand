@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import androidx.compose.runtime.collectAsState
-import org.yarhooshmand.smartv3.data.AppDatabase
+import org.yarhooshmand.smartv3.data.ReminderDatabase
 import org.yarhooshmand.smartv3.data.ReminderEntity
 import org.yarhooshmand.smartv3.reminders.scheduleReminder
 import org.yarhooshmand.smartv3.utils.SmsPrefs
@@ -30,11 +30,10 @@ import java.util.*
 @Composable
 fun RemindersUX() {
     val ctx = LocalContext.current
-    val dao = remember { AppDatabase.get(ctx).reminderDao() }
+    val dao = remember { ReminderDatabase.getInstance(ctx).reminderDao() }
     val df = remember { SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()) }
     val scope = rememberCoroutineScope()
 
-    // Flow<List<ReminderEntity>> -> State<List<ReminderEntity>>
     val items by dao.getAll()
         .distinctUntilChanged()
         .collectAsState(initial = emptyList())
@@ -48,12 +47,8 @@ fun RemindersUX() {
             }
         }
     ) { pad ->
-        Column(
-            Modifier
-                .padding(pad)
-                .padding(16.dp)
-        ) {
-            // --- SMS Preferences Card ---
+        Column(Modifier.padding(pad).padding(16.dp)) {
+
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(12.dp)) {
                     Row(
@@ -121,9 +116,7 @@ fun RemindersUX() {
                             },
                             dateText = df.format(Date(r.timeMillis)),
                             onToggleDone = {
-                                scope.launch {
-                                    dao.update(r.copy(done = !r.done))
-                                }
+                                scope.launch { dao.update(r.copy(done = !r.done)) }
                             }
                         )
                     }
@@ -136,8 +129,11 @@ fun RemindersUX() {
         AddReminderDialog(
             onDismiss = { showAdd = false },
             onAdd = { text, whenMillis, category, smsTargets ->
-                scope.launch {
-                    val id = dao.insert(
+                val ctx2 = ctx
+                val dao2 = dao
+                val scope2 = scope
+                scope2.launch {
+                    val id = dao2.insert(
                         ReminderEntity(
                             text = text,
                             timeMillis = whenMillis,
@@ -146,8 +142,8 @@ fun RemindersUX() {
                             done = false
                         )
                     )
-                    // زمان‌بندی آلارم برای آیتم جدید
-                    scheduleReminder(ctx, id, whenMillis, text, smsTargets)
+                    // فقط ۴ پارامتر مطابق تعریف فعلی
+                    scheduleReminder(ctx2, id, whenMillis, text)
                     showAdd = false
                 }
             }
@@ -164,22 +160,14 @@ private fun ReminderCard(
     onToggleDone: () -> Unit
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp)
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)
     ) {
         Row(
-            modifier = Modifier
-                .padding(12.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.padding(12.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(Modifier.weight(1f)) {
-                Text(
-                    entity.text,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Text(entity.text, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     AssistChip(onClick = {}, label = { Text(dateText) })
                     Spacer(Modifier.width(8.dp))
@@ -193,15 +181,11 @@ private fun ReminderCard(
             Spacer(Modifier.width(8.dp))
             Checkbox(checked = entity.done, onCheckedChange = { onToggleDone() })
             Spacer(Modifier.width(8.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onToggleSms() }
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { onToggleSms() }) {
                 Icon(
                     Icons.Default.Sms,
                     contentDescription = null,
-                    tint = if (smsEnabled) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.outline
+                    tint = if (smsEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(if (smsEnabled) "SMS" else "—")
@@ -218,7 +202,7 @@ private fun AddReminderDialog(
 ) {
     val ctx = LocalContext.current
     var text by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf(Date(System.currentTimeMillis() + 30 * 60 * 1000)) } // +30m
+    var date by remember { mutableStateOf(Date(System.currentTimeMillis() + 30 * 60 * 1000)) }
     val df = remember { SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault()) }
     var category by remember { mutableStateOf("عمومی") }
     var smsTargets by remember { mutableStateOf("") }
@@ -228,28 +212,13 @@ private fun AddReminderDialog(
         title = { Text("یادآور جدید") },
         text = {
             Column {
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    label = { Text("متن یادآور") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text("متن یادآور") }, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
                 Text("زمان: ${df.format(date)}")
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = category,
-                    onValueChange = { category = it },
-                    label = { Text("دسته‌بندی") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                OutlinedTextField(value = category, onValueChange = { category = it }, label = { Text("دسته‌بندی") }, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = smsTargets,
-                    onValueChange = { smsTargets = it },
-                    label = { Text("شماره(ها)ی SMS با کاما جدا") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                OutlinedTextField(value = smsTargets, onValueChange = { smsTargets = it }, label = { Text("شماره(ها)ی SMS با کاما جدا") }, modifier = Modifier.fillMaxWidth())
             }
         },
         confirmButton = {
@@ -257,12 +226,7 @@ private fun AddReminderDialog(
                 if (text.isBlank()) {
                     Toast.makeText(ctx, "متن را وارد کنید", Toast.LENGTH_SHORT).show()
                 } else {
-                    onAdd(
-                        text.trim(),
-                        date.time,
-                        category,
-                        if (smsTargets.trim().isEmpty()) null else smsTargets.trim()
-                    )
+                    onAdd(text.trim(), date.time, category, if (smsTargets.trim().isEmpty()) null else smsTargets.trim())
                 }
             }) { Text("افزودن") }
         },
