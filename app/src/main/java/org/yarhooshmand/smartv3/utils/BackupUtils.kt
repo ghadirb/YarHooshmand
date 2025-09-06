@@ -2,35 +2,29 @@ package org.yarhooshmand.smartv3.utils
 
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import org.yarhooshmand.smartv3.data.ReminderDatabase
+import org.yarhooshmand.smartv3.data.AppDatabase
 import org.yarhooshmand.smartv3.data.ReminderEntity
-import org.json.JSONArray
-import org.json.JSONObject
 
 object BackupUtils {
 
-    suspend fun exportToJson(context: Context): String = withContext(Dispatchers.IO) {
-        val dao = ReminderDatabase.getInstance(context).reminderDao()
-        val list: List<ReminderEntity> = dao.getAll().first()
-        val arr = JSONArray()
-        list.forEach { r ->
-            val o = JSONObject()
-            o.put("id", r.id)
-            o.put("text", r.text)
-            o.put("timeMillis", r.timeMillis)
-            o.put("category", r.category)
-            o.put("smsTargets", r.smsTargets)
-            o.put("done", r.done)
-            arr.put(o)
+    /**
+     * گرفتن بک‌آپ از تمام reminder ها
+     */
+    suspend fun exportReminders(context: Context): List<ReminderEntity> {
+        return withContext(Dispatchers.IO) {
+            val db = AppDatabase.getDatabase(context)
+            db.reminderDao().getAllOnce() // نیاز داریم یک متد @Query ساده اضافه کنیم
         }
-        arr.toString()
     }
 
-    // نسخهٔ بی‌سروصدا؛ پیاده‌سازی واقعی آپلود را اینجا اضافه کن
-    suspend fun tryUploadBackupSilent(context: Context) {
-        // TODO: ارسال arr به سرور/فضای ابری موردنظر
-        exportToJson(context) // تا فعلاً فقط JSON تولید شود
+    /**
+     * وارد کردن reminder ها از بک‌آپ
+     */
+    suspend fun importReminders(context: Context, reminders: List<ReminderEntity>) {
+        withContext(Dispatchers.IO) {
+            val db = AppDatabase.getDatabase(context)
+            db.reminderDao().insertAll(reminders)
+        }
     }
 }
