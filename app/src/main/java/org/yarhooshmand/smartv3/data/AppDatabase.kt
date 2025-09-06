@@ -5,29 +5,37 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(
-    entities = [ReminderEntity::class],
-    version = 1,
-    exportSchema = false // جلوگیری از هشدار Room
-)
+@Database(entities = [Reminder::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
+
+    // فقط یک متد برای دسترسی مستقیم به DAO
     abstract fun reminderDao(): ReminderDao
 
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        fun get(ctx: Context): AppDatabase =
+        fun get(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
-                    ctx.applicationContext,
+                    context.applicationContext,
                     AppDatabase::class.java,
-                    "yar_db"
+                    "reminder_db"
                 )
-                // در صورت تغییر نسخه دیتابیس، دیتابیس جدید ساخته میشه تا برنامه کرش نکنه
                 .fallbackToDestructiveMigration()
                 .build()
-                .also { INSTANCE = it }
+                    .also { INSTANCE = it }
             }
     }
+}
+
+/**
+ * Wrapper برای سازگاری با کدهای قدیمی.
+ * اگر جایی در پروژه نوشته بود: ReminderDatabase.get(context).dao()
+ * اینجا map می‌کنیم به AppDatabase.get(context).reminderDao()
+ */
+object ReminderDatabase {
+    fun get(context: Context): AppDatabase = AppDatabase.get(context)
+
+    fun dao(context: Context): ReminderDao = get(context).reminderDao()
 }
