@@ -2,28 +2,17 @@ package org.yarhooshmand.smartv3.data
 
 import kotlinx.coroutines.flow.Flow
 
-class ReminderRepository(private val reminderDao: ReminderDao) {
+class ReminderRepository(private val dao: ReminderDao) {
 
-    // لیست همه‌ی reminder ها
-    val allReminders: Flow<List<ReminderEntity>> = reminderDao.getAllReminders()
+    val allReminders: Flow<List<ReminderEntity>> = dao.getAllReminders()
 
-    // افزودن reminder
-    suspend fun insert(reminder: ReminderEntity): Long {
-        return reminderDao.insert(reminder)
-    }
+    suspend fun insert(reminder: ReminderEntity): Long = dao.insert(reminder)
 
-    // حذف reminder
-    suspend fun delete(reminder: ReminderEntity) {
-        reminderDao.delete(reminder)
-    }
+    suspend fun update(reminder: ReminderEntity) = dao.update(reminder)
 
-    // آپدیت reminder
-    suspend fun update(reminder: ReminderEntity) {
-        reminderDao.update(reminder)
-    }
+    suspend fun delete(reminder: ReminderEntity) = dao.delete(reminder)
 
-    // گرفتن reminder بر اساس id
-    fun getReminderById(id: Long): Flow<ReminderEntity?> {
-        return reminderDao.getReminderById(id)
-    }
+    fun getById(id: Long): Flow<ReminderEntity?> = dao.getReminderById(id)
+
+    suspend fun markCompleted(id: Long) = dao.markCompleted(id)
 }
