@@ -1,25 +1,55 @@
 package org.yarhooshmand.smartv3.ui
 
-import android.content.Context
-import kotlinx.coroutines.flow.Flow
-import org.yarhooshmand.smartv3.data.ReminderEntity
-import org.yarhooshmand.smartv3.data.ReminderRepository
-import org.yarhooshmand.smartv3.reminders.scheduleReminder
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import org.yarhooshmand.smartv3.data.local.Reminder
+import org.yarhooshmand.smartv3.viewmodel.ReminderViewModel
 
-class RemindersUX(private val repo: ReminderRepository) {
+@Composable
+fun RemindersScreen(viewModel: ReminderViewModel, navController: NavController) {
+    val reminders = viewModel.allReminders.value ?: emptyList()
 
-    val reminders: Flow<List<ReminderEntity>> = repo.allReminders
-
-    suspend fun addReminder(ctx: Context, text: String, timeMillis: Long, category: String? = null, smsTargets: List<String> = emptyList()) {
-        val id = repo.insert(ReminderEntity(text = text, timeMillis = timeMillis, category = category, smsTargets = smsTargets))
-        scheduleReminder(ctx, id, timeMillis, text)
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("یادآورها") })
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { /* TODO: Add new reminder screen */ }) {
+                Text("+")
+            }
+        }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(8.dp)
+        ) {
+            items(reminders) { reminder ->
+                ReminderItem(reminder = reminder)
+            }
+        }
     }
+}
 
-    suspend fun updateReminder(reminder: ReminderEntity) = repo.update(reminder)
-    suspend fun deleteReminder(reminder: ReminderEntity) = repo.delete(reminder)
-
-    suspend fun markCompleted(id: Long) {
-        val entity = repo.getByIdOnce(id) ?: return
-        repo.update(entity.copy(done = true, completed = true, completedAt = System.currentTimeMillis()))
+@Composable
+fun ReminderItem(reminder: Reminder) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        elevation = CardDefaults.cardElevation()
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text(text = reminder.title, style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = reminder.description ?: "", style = MaterialTheme.typography.bodyMedium)
+        }
     }
 }
