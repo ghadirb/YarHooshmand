@@ -11,13 +11,19 @@ fun Navigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "dashboard" // صفحه شروع اپ
+        startDestination = "reminders"
     ) {
-        composable("dashboard") {
-            DashboardScreen(navController)
-        }
         composable("reminders") {
-            RemindersScreen(navController)
+            RemindersScreen(navController = navController)
+        }
+        composable("dashboard") {
+            DashboardScreen(navController = navController)
+        }
+        composable("chat") {
+            ChatScreen(navController = navController)
+        }
+        composable("settings") {
+            SettingsScreen(navController = navController)
         }
     }
 }
